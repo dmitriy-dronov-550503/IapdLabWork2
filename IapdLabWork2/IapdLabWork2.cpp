@@ -12,7 +12,7 @@ void showVector(vector<string> v) {
 		cout << "\tNone information" << endl;
 		return;
 	}
-	for (int i = 0; i<v.size(); i++) {
+	for (int i = 0; i < v.size(); i++) {
 		cout << '\t' << v[i] << endl;
 	}
 }
@@ -35,24 +35,31 @@ int main()
 		string res = hi.isPIO() ? "PIO" : "DMA";
 		cout << endl;
 		cout << "Transfer mode: " << res << endl;
+		cout << "PIO support: " << endl;
+		showVector(hi.getPIOSupport());
 		cout << "DMA support: " << endl;
 		showVector(hi.getDMASupport());
+		cout << "MultiwordDMA support: " << endl;
+		showVector(hi.getMultiwordDMASupport());
 		cout << "UltraDMA support: " << endl;
 		showVector(hi.getUltraDMASupport());
 	}
 	catch (const runtime_error& re)
 	{
-		std::cerr << "Runtime error: " << re.what() << std::endl;
+		cerr << "Runtime error: " << re.what() << endl;
+		cout << "Try to open the application with administrator rights." << endl;
 	}
 	catch (const exception& ex)
 	{
-		std::cerr << "Error occurred: " << ex.what() << std::endl;
+		cerr << "Error occurred: " << ex.what() << endl;
+		cout << "Try to open the application with administrator rights." << endl;
 	}
 	catch (...)
 	{
-		std::cerr << "Unknown failure occurred. Possible memory corruption" << std::endl;
+		cerr << "Unknown failure occurred. Possible memory corruption" << endl;
+		cout << "Try to open the application with administrator rights." << endl;
 	}
 	getchar();
-    return 0;
+	return 0;
 }
 

@@ -18,7 +18,7 @@ private:
 
 	string parseDataToString(int start, int end) {
 		string s;
-		for (int i = start; i<end; i++) {
+		for (int i = start; i < end; i++) {
 			s.push_back((char)(data[i] >> 8));
 			s.push_back((char)data[i]);
 		}
@@ -32,7 +32,7 @@ private:
 		ULARGE_INTEGER TotalNumberOfBytes;
 		ULARGE_INTEGER TotalNumberOfFreeBytes;
 		bitset<16> drives((__int16)GetLogicalDrives());
-		for (int i = 0; i<16; i++) {
+		for (int i = 0; i < 16; i++) {
 			if (drives[i] == 1) {
 				wchar_t s1[8];
 				s1[0] = (wchar_t)('A' + i);
@@ -50,8 +50,8 @@ private:
 			}
 		}
 	}
-public:
 
+public:
 	HDDinfo() {
 		HANDLE hDevice = INVALID_HANDLE_VALUE;
 		hDevice = CreateFileW(L"\\\\.\\PhysicalDrive0",          // drive to open
@@ -96,7 +96,7 @@ public:
 
 		WORD *dataIn = (WORD*)(identifyDataBuffer + sizeof(ATA_PASS_THROUGH_EX));
 
-		for (int i = 0; i<256; i++) {
+		for (int i = 0; i < 256; i++) {
 			data.push_back(dataIn[i]);
 		}
 
@@ -124,7 +124,6 @@ public:
 		}
 		CloseHandle(hDevice);
 	}
-
 
 	string getSerialNumber() {
 		return parseDataToString(10, 19);
@@ -171,9 +170,39 @@ public:
 		for (int i = 15; i >= 0; i--) {
 			if (DMAsupport[i]) {
 				if (i == 0) v.push_back("Ultra DMA mode 0 is supported");
-				else if (i <= 6) v.push_back("Ultra DMA mode  and below are supported" + i);
-				else if (i >= 7 && i <= 9) v.push_back("Multiword DMA mode is supported" + (i - 7));
-				else if (i == 10) v.push_back("DMA is supported");
+				else if (i <= 6) {
+					string s = to_string(i);
+					s += " and below are supported";
+					v.push_back("Ultra DMA mode " + s);
+				}
+				else if (i >=7 && i <= 9) {
+					string s = to_string(i - 8);
+					s += " is supported";
+					v.push_back("DMA mode " + s);
+				}
+				else if (i==10) v.push_back("DMA is supported");
+				else v.push_back("Reserved");
+			}
+		}
+		return v;
+	}
+
+	vector<string> getMultiwordDMASupport() {
+		vector<string> v;
+		bitset<16> MultiwordDMAsupport(data[63]);
+		for (int i = 15; i >= 0; i--) {
+			if (MultiwordDMAsupport[i]) {
+				if (i == 0) v.push_back("Multiword DMA mode 0 is supported");
+				else if (i <= 2) {
+					string s = to_string(i);
+					s += " and below are supported";
+					v.push_back("Multiword DMA mode " + s);
+				}
+				else if (i > 7 && i < 11) {
+					string s = to_string(i - 8);
+					s += " is selected";
+					v.push_back("Multiword DMA mode " + s);
+				}
 				else v.push_back("Reserved");
 			}
 		}
@@ -191,14 +220,22 @@ public:
 					s += " and below are supported";
 					v.push_back("Ultra DMA mode " + s);
 				}
-				else if (i>7 && i<15) {
-					string s = to_string(i-8);
+				else if (i > 7 && i < 15) {
+					string s = to_string(i - 8);
 					s += " is selected";
 					v.push_back("Ultra DMA mode " + s);
 				}
 				else v.push_back("Reserved");
 			}
 		}
+		return v;
+	}
+
+	vector<string> getPIOSupport() {
+		vector<string> v;
+		bitset<16> b(data[64]);
+		if (b[0]) v.push_back("PIO mode 3 supported");
+		if (b[1]) v.push_back("PIO mode 4 supported");
 		return v;
 	}
 

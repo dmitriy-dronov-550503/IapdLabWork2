@@ -37,7 +37,7 @@ private:
 				wchar_t s1[8];
 				s1[0] = (wchar_t)('A' + i);
 				s1[1] = '\0';
-				wcscat(s1, L":\\");
+				wcscat_s(s1, L":\\");
 				if (GetDriveType(s1) == 3)
 				{
 					bool fl = GetDiskFreeSpaceEx(s1, &FreeBytesAvailable, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
@@ -116,7 +116,7 @@ public:
 			NULL
 		))
 		{
-			throw(L"DeviceIoControl error: %i\n", GetLastError());
+			throw(L"DeviceIoControl error: %d\n", GetLastError());
 		}
 		else
 		{
@@ -145,7 +145,7 @@ public:
 		vector<string> v;
 		bitset<16> ATAsupport(data[80]);
 		for (int i = (sizeof(ATAstandards) / sizeof(*ATAstandards)) - 1; i >= 0; i--) {
-			if (ATAsupport.at(i)) {
+			if (ATAsupport[i]) {
 				v.push_back(ATAstandards[i]);
 			}
 		}
@@ -158,7 +158,7 @@ public:
 		vector<string> v;
 		bitset<16> SATAsupport(data[222]);
 		for (int i = (sizeof(SATAstandards) / sizeof(*SATAstandards)) - 1; i >= 0; i--) {
-			if (SATAsupport.at(i)) {
+			if (SATAsupport[i]) {
 				v.push_back(SATAstandards[i]);
 			}
 		}
@@ -169,7 +169,7 @@ public:
 		vector<string> v;
 		bitset<16> DMAsupport(data[62]);
 		for (int i = 15; i >= 0; i--) {
-			if (DMAsupport.at(i)) {
+			if (DMAsupport[i]) {
 				if (i == 0) v.push_back("Ultra DMA mode 0 is supported");
 				else if (i <= 6) v.push_back("Ultra DMA mode  and below are supported" + i);
 				else if (i >= 7 && i <= 9) v.push_back("Multiword DMA mode is supported" + (i - 7));
@@ -182,18 +182,17 @@ public:
 
 	vector<string> getUltraDMASupport() {
 		vector<string> v;
-		char numstr[21];
 		bitset<16> UltraDMAsupport(data[88]);
 		for (int i = 15; i >= 0; i--) {
-			if (UltraDMAsupport.at(i)) {
+			if (UltraDMAsupport[i]) {
 				if (i == 0) v.push_back("Ultra DMA mode 0 is supported");
 				else if (i <= 6) {
-					string s = itoa(i, numstr, 10);
+					string s = to_string(i);
 					s += " and below are supported";
 					v.push_back("Ultra DMA mode " + s);
 				}
 				else if (i>7 && i<15) {
-					string s = itoa((i - 8), numstr, 10);
+					string s = to_string(i-8);
 					s += " is selected";
 					v.push_back("Ultra DMA mode " + s);
 				}
